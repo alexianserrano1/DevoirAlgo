@@ -7,6 +7,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="Algorithmique_Pieres_Serrano" />
+        <module name="DevoirAlgo" />
       </profile>
     </annotationProcessing>
   </component>
