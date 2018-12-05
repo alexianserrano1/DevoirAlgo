@@ -17,11 +17,10 @@ public class EnveloppeConvexeTest {
         Point point3 = new Point(13.8, 4);
         Point point2 = new Point(5, 2.7);
 
-        Point[] points = new Point[3];
-        points[0] = point1;
-        points[1] = point3;
-        points[2] = point2;
-
+        List<Point> points = new ArrayList<Point>();
+        points.add(point1);
+        points.add(point3);
+        points.add(point2);
 
         EnveloppeConvexe Conv = new EnveloppeConvexe(points);
         Conv.sortX();
