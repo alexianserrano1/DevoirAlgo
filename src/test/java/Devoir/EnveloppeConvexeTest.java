@@ -1,6 +1,6 @@
 package Devoir;
 
-import javafx.geometry.Point2D;
+//import javafx.geometry.Point2D;
 import org.junit.Test;
 
 
