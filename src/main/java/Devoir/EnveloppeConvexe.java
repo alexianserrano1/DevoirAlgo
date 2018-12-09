@@ -46,6 +46,8 @@ public class EnveloppeConvexe {
 
             ConvLeft.createConvexe();
             ConvRight.createConvexe();
+
+            pointsConv = fusionConvexe(ConvLeft, ConvRight);
         }
         else {
             if(this.points.size() == 2) {
@@ -89,9 +91,9 @@ public class EnveloppeConvexe {
 
     }*/
 
-    public EnveloppeConvexe fusionConvexe(EnveloppeConvexe convLeft, EnveloppeConvexe convRight) {
+    public List<Point> fusionConvexe(EnveloppeConvexe convLeft, EnveloppeConvexe convRight) {
         /*TODO : Fusionner les deux en enlevant les points qui ne sont plus dans la nouvelle enveloppe convexe*/
-        EnveloppeConvexe fusion = new EnveloppeConvexe(Point.fusion(convLeft.points, convRight.points));
+       List<Point> conv = new ArrayList<>();
 
         int maxIndexLeft = convLeft.pointsConv.size() - 1;
         int minIndexRight = 0;
@@ -180,7 +182,7 @@ public class EnveloppeConvexe {
         }
 
         for(index = 0; index < convRight.pointsConv.size(); index++) {
-            if(index < convRight.pointsConv.indexOf(topLeft) || index > convRight.pointsConv.indexOf(bottomLeft))
+            if(index < convRight.pointsConv.indexOf(topRight) || index > convRight.pointsConv.indexOf(bottomRight))
                 convRight.pointsConv.remove(index);
         }
 
@@ -189,18 +191,19 @@ public class EnveloppeConvexe {
         for(index = 0; index < convRight.pointsConv.size()+convLeft.pointsConv.size(); index++) {
             if(side) {
                 if (index == convLeft.pointsConv.indexOf(topLeft)) {
-                    fusion.pointsConv.add(convLeft.pointsConv.get(index));
+                    conv.add(convLeft.pointsConv.get(index));
                     side = false;
                 }
-                fusion.pointsConv.add(convLeft.pointsConv.get(index));
+                else { conv.add(convLeft.pointsConv.get(index)); }
             }
             else {
-
+                if (index == convRight.pointsConv.indexOf(bottomRight)) {
+                    conv.add(convRight.pointsConv.get(index));
+                    side = true;
+                }
+                else { conv.add(convRight.pointsConv.get(index)); }
             }
         }
-
-        return fusion;
+        return conv;
     }
-//testtest
-
 }

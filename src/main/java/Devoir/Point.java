@@ -33,4 +33,24 @@ public class Point implements Comparable{
 
         return points;
     }
+
+    public static double[] transformX(List<Point> points) {
+        double[] x = new double[points.size()];
+        int index = 0;
+        for(Point point : points) {
+            x[index] = point.x;
+            index++;
+        }
+        return x;
+    }
+
+    public static double[] transformY(List<Point> points) {
+        double[] y = new double[points.size()];
+        int index = 0;
+        for(Point point : points) {
+            y[index] = point.y;
+            index++;
+        }
+        return y;
+    }
 }
