@@ -1,7 +1,6 @@
 package Devoir;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -18,192 +17,102 @@ public class EnveloppeConvexe {
 
     public EnveloppeConvexe(List<Point> points) { this.points = points; }
 
-    //public int getSize() { return pointsSize; }
-
-    /* TODO : Utiliser dans le main et non pas comme méthode de la classe */
-    public void sortX() {
-        Collections.sort(points);
-    }
-
     /**
      * Fonction récursive qui créer l'enveloppe convexe d'un nuage de points
      */
-
-    public void createConvexe() {
-        if(this.points.size() > 3) {
-            List<Point> pointsRight = new ArrayList<Point>();
-            List<Point> pointsLeft = new ArrayList<Point>();
-
-            for(int index = 0; index < points.size(); index++) {
-                if(index < points.size()/2)
-                    pointsLeft.add(points.get(index));
-                else
-                    pointsRight.add(points.get(index));
-            }
-
-            EnveloppeConvexe ConvLeft = new EnveloppeConvexe(pointsLeft);
-            EnveloppeConvexe ConvRight = new EnveloppeConvexe(pointsRight);
-
-            ConvLeft.createConvexe();
-            ConvRight.createConvexe();
-
-            pointsConv = fusionConvexe(ConvLeft, ConvRight);
-        }
-        else {
-            if(this.points.size() == 2) {
-                /* TODO : probleme avec le sens */
-                pointsConv = points;
-            }
-            else if(this.points.size() == 3) {
-                double uX =points.get(1).x - points.get(0).x;
-                double uY = points.get(1).y - points.get(0).y;
-                double vX = points.get(2).x - points.get(0).x;
-                double vY = points.get(2).y - points.get(0).y;
-
-                if(vectorielProduct(uX, uY, vX, vY) <= 0)
-                    pointsConv = points;
-                else {
-                    pointsConv.add(points.get(0));
-                    pointsConv.add(points.get(2));
-                    pointsConv.add(points.get(1));
-                }
-            }
-        }
-    }
 
     public double vectorielProduct(double uX, double uY, double vX, double vY) {
         return (uX*vY - uY*vX);
     }
 
-    /*public boolean parcoursBottomLeft(EnveloppeConvexe ConvLeft, EnveloppeConvexe ConvRight) {
 
+    public double angle(Point p1, Point p2, Point p3) {
+        double uX, uY, vX, vY;
+        /** on incremente */
+        uX = p1.x - p3.x;
+        uY = p1.y - p3.y;
+        vX = p2.x - p3.x;
+        vY = p2.y - p3.y;
+
+        return vectorielProduct(uX, uY, vX, vY);
     }
 
-    public boolean parcoursBottomRight(EnveloppeConvexe ConvLeft, EnveloppeConvexe ConvRight) {
-
+    void partition(ArrayList<Point> lp, ArrayList<Point> env){
+        env.clear();
+        // ordonner les points par ordre croissant des abcisses
+        Collections.sort(lp);
+        if(lp.size()<=3) {
+            env.addAll(lp);
+            if(  lp.size()==3 &&
+                    angle(env.get(0), env.get(1), env.get(2))>0){
+                Point p = env.get(1);
+                env.remove(p); env.add(p);
+            }
+            return;
+        }
+        //On divise en deux
+        ArrayList<Point> e1 = new ArrayList<Point>();
+        ArrayList<Point> e2 = new ArrayList<Point>();
+        for(int i = 0; i<lp.size()/2; ++i)         e1.add(lp.get(i));
+        for(int i = lp.size()/2; i<lp.size(); ++i) e2.add(lp.get(i));
+        // On calcule les enveloppes de chaque morceau
+        ArrayList<Point> env1 = new ArrayList<Point>();
+        ArrayList<Point> env2 = new ArrayList<Point>();
+        partition(e1, env1);
+        partition(e2, env2);
+        // et on fusionne !
+        env.addAll( fusion(env1, env2) );
     }
 
-    public boolean parcoursTopLeft(EnveloppeConvexe ConvLeft, EnveloppeConvexe ConvRight) {
+    ArrayList<Point> fusion(ArrayList<Point> convLeft, ArrayList<Point> convRight){
+        // recherche du point d'abcisse le plus grand dans e1;
+        int iMax = 0;
+        for( int i = 1; i < convLeft.size(); ++i) if(convLeft.get(i).x > convLeft.get(iMax).x) iMax = i;
+        // le point d'abcisse le plus petit dans e2 est en 0
+        int iMin = 0;
+        // le segment du haut
+        int si1 = iMax;
+        int sj1 = iMin;
+        boolean b = true;
+        while(b){
+            b = false;
 
-    }
-
-    public boolean parcoursTopRight(EnveloppeConvexe ConvLeft, EnveloppeConvexe ConvRight) {
-
-    }*/
-
-    public List<Point> fusionConvexe(EnveloppeConvexe convLeft, EnveloppeConvexe convRight) {
-        /*TODO : Fusionner les deux en enlevant les points qui ne sont plus dans la nouvelle enveloppe convexe*/
-       List<Point> conv = new ArrayList<>();
-
-        int maxIndexLeft = convLeft.pointsConv.size() - 1;
-        int minIndexRight = 0;
-        int maxIndexRight = convRight.pointsConv.size() - 1;
-
-        boolean echecLeft = false, echecRight = false;
-        boolean side = true; /** true = left side, false = right side */
-
-        int si = maxIndexLeft, sj = minIndexRight;
-        while (!(echecLeft && echecRight)) { /** TOP */
-            if (side) {
-                int size = maxIndexLeft;
-                double uX = convLeft.pointsConv.get(si % size).x - convRight.pointsConv.get(sj).x;
-                double uY = convLeft.pointsConv.get(si % size).y - convRight.pointsConv.get(sj).y;
-                double vX = convLeft.pointsConv.get((si - 1) % size).x - convRight.pointsConv.get(sj).x;
-                double vY = convLeft.pointsConv.get((si - 1) % size).y - convRight.pointsConv.get(sj).y;
-
-                if (vectorielProduct(uX, uY, vX, vY) <= 0) {
-                    si--;
-                    echecRight = false;
-                } else {
-                    echecLeft = true;
-                    side = false;
-                }
-            } else {
-                int size = maxIndexRight;
-                double uX = convLeft.pointsConv.get(sj % size).x - convRight.pointsConv.get(si).x;
-                double uY = convLeft.pointsConv.get(sj % size).y - convRight.pointsConv.get(si).y;
-                double vX = convLeft.pointsConv.get((sj + 1) % size).x - convRight.pointsConv.get(si).x;
-                double vY = convLeft.pointsConv.get((sj + 1) % size).y - convRight.pointsConv.get(si).y;
-
-                if (vectorielProduct(uX, uY, vX, vY) <= 0) {
-                    sj++;
-                    echecLeft = false;
-                } else {
-                    echecRight = true;
-                    side = true;
-                }
+            if(angle(convLeft.get(si1), convLeft.get((si1-1)%convLeft.size()), convRight.get(sj1)) <= 0){
+                si1 = (si1-1)%convLeft.size();
+                b = true;
+            }
+            if(angle(convRight.get(sj1), convRight.get((sj1+1)%convRight.size()), convLeft.get(si1)) <= 0){
+                sj1 = (sj1+1+convRight.size())%convRight.size();
+                b = true;
             }
         }
-        Point topLeft = convLeft.pointsConv.get(si);
-        Point topRight = convRight.pointsConv.get(sj);
+        // le segment du bas
+        int si2 = iMax;
+        int sj2 = iMin;
+        b = true;
+        while(b){
+            b = false;
 
-        side = true;
-        si = maxIndexLeft;
-        sj = minIndexRight;
-        while (!(echecLeft && echecRight)) { /** BOTTOM */
-            if (side) {
-                int size = maxIndexLeft;
-                double uX = convLeft.pointsConv.get(si % size).x - convRight.pointsConv.get(sj).x;
-                double uY = convLeft.pointsConv.get(si % size).y - convRight.pointsConv.get(sj).y;
-                double vX = convLeft.pointsConv.get((si + 1) % size).x - convRight.pointsConv.get(sj).x;
-                double vY = convLeft.pointsConv.get((si + 1) % size).y - convRight.pointsConv.get(sj).y;
-
-                if (vectorielProduct(uX, uY, vX, vY) >= 0) {
-                    si++;
-                    echecRight = false;
-                } else {
-                    echecLeft = true;
-                    side = !side;
-                }
-            } else {
-                int size = maxIndexRight;
-                double uX = convLeft.pointsConv.get(sj % size).x - convRight.pointsConv.get(si).x;
-                double uY = convLeft.pointsConv.get(sj % size).y - convRight.pointsConv.get(si).y;
-                double vX = convLeft.pointsConv.get((sj - 1) % size).x - convRight.pointsConv.get(si).x;
-                double vY = convLeft.pointsConv.get((sj - 1) % size).y - convRight.pointsConv.get(si).y;
-
-                if (vectorielProduct(uX, uY, vX, vY) >= 0) {
-                    sj--;
-                    echecLeft = false;
-                } else {
-                    echecRight = true;
-                    side = !side;
-                }
+            if(angle((convLeft.get(si1), convLeft.get((si1+1)%convLeft.size()), convRight.get(sj1)) >= 0){
+                si2 = (si2-1+convLeft.size())%convLeft.size();
+                b = true;
+            }
+            if(angle(convRight.get(sj1), convRight.get((sj1-1)%convRight.size()), convLeft.get(si1)) > 0){
+                sj2 = (sj2+1)%convRight.size();
+                b = true;
             }
         }
-        Point bottomLeft = convLeft.pointsConv.get(si);
-        Point bottomRight = convRight.pointsConv.get(sj);
-
-        /*TODO : fusionner les enveloppes en fonction  des quatres points */
-        int index;
-        for(index = 0; index < convLeft.pointsConv.size(); index++) {
-            if(index > convLeft.pointsConv.indexOf(topLeft) && index < convLeft.pointsConv.indexOf(bottomLeft))
-                convLeft.pointsConv.remove(index);
+        // fabrication de l'enveloppe
+        ArrayList<Point> env = new ArrayList();
+        for( int i = 0; i<=si2; ++i)            env.add(convLeft.get(i));
+        if(sj1==0){
+            for( int i = sj2; i<convRight.size(); ++i) env.add(convRight.get(i));
+            env.add(convRight.get(0));
         }
+        else
+            for( int i = sj2;  i<=sj1; ++i)            env.add(convRight.get(i));
+        if(si1!=0) for( int i = si1; i<convLeft.size(); ++i) env.add(convLeft.get(i));
 
-        for(index = 0; index < convRight.pointsConv.size(); index++) {
-            if(index < convRight.pointsConv.indexOf(topRight) || index > convRight.pointsConv.indexOf(bottomRight))
-                convRight.pointsConv.remove(index);
-        }
-
-        /*TODO : fusionner les deux listes */
-        side = true;
-        for(index = 0; index < convRight.pointsConv.size()+convLeft.pointsConv.size(); index++) {
-            if(side) {
-                if (index == convLeft.pointsConv.indexOf(topLeft)) {
-                    conv.add(convLeft.pointsConv.get(index));
-                    side = false;
-                }
-                else { conv.add(convLeft.pointsConv.get(index)); }
-            }
-            else {
-                if (index == convRight.pointsConv.indexOf(bottomRight)) {
-                    conv.add(convRight.pointsConv.get(index));
-                    side = true;
-                }
-                else { conv.add(convRight.pointsConv.get(index)); }
-            }
-        }
-        return conv;
+        return env;
     }
 }
