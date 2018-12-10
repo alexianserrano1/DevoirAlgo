@@ -16,7 +16,7 @@ public class App extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        Generator generator = new Generator(50);
+        Generator generator = new Generator(30);
         generator.generate();
 
         ArrayList<Point> env = new ArrayList<>();

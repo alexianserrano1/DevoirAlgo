@@ -4,15 +4,21 @@ import javafx.scene.canvas.GraphicsContext;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 public class Convexe {
 
+    /** Signe de l'angle formé par p0p1 et p0p2
+     *
+     * @return positif si on est dans le sens trigo
+     *         negatif sinon
+     */
     double angle(Point p0, Point p1, Point p2) {
-        // retourne la surface
-        // négatif si on tourne dans le sens contraire des aiguilles d'une montre
-        // positif sinon
-        return ((p1.x - p0.x) * (p2.y - p0.y) - (p2.x - p0.x) * (p1.y - p0.y)) / 2.;
+        double uX = p1.x - p0.x;
+        double uY = p1.y - p0.y;
+        double vX = p2.x - p0.x;
+        double vY = p2.y - p0.y;
+
+        return (uX*vY - uY*vX);
     }
 
     void makeConvex(ArrayList<Point> points, ArrayList<Point> env) {
