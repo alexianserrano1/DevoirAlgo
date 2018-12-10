@@ -6,7 +6,7 @@ import java.util.Random;
 
 public class Generator {
 
-    List<Point> points ;
+    ArrayList<Point> points ;
     int numberOfPoints;
     double minBound=0, maxBound=500;
 

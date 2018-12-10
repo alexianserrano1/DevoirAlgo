@@ -9,13 +9,13 @@ import java.util.List;
  */
 public class EnveloppeConvexe {
     /** Nuage de points */
-    List<Point> points;
+    ArrayList<Point> points;
 
     /** Points de l'enveloppe convexe */
-    List<Point> pointsConv = new ArrayList<Point>();
+    ArrayList<Point> pointsConv = new ArrayList<Point>();
 
 
-    public EnveloppeConvexe(List<Point> points) { this.points = points; }
+    public EnveloppeConvexe(ArrayList<Point> points) { this.points = points; }
 
     /**
      * Fonction récursive qui créer l'enveloppe convexe d'un nuage de points
@@ -28,7 +28,7 @@ public class EnveloppeConvexe {
 
     public double angle(Point p1, Point p2, Point p3) {
         double uX, uY, vX, vY;
-        /** on incremente */
+
         uX = p1.x - p3.x;
         uY = p1.y - p3.y;
         vX = p2.x - p3.x;
@@ -37,8 +37,16 @@ public class EnveloppeConvexe {
         return vectorielProduct(uX, uY, vX, vY);
     }
 
+    double surface(Point p0, Point p1, Point p2) {
+        // retourne la surface
+        // négatif si on tourne dans le sens contraire des aiguilles d'une montre
+        // positif sinon
+        return ((p1.x - p0.x) * (p2.y - p0.y) - (p2.x - p0.x) * (p1.y - p0.y)) / 2.;
+    }
+
     void partition(ArrayList<Point> lp, ArrayList<Point> env){
         env.clear();
+        System.out.println("Entree dans partition");
         // ordonner les points par ordre croissant des abcisses
         Collections.sort(lp);
         if(lp.size()<=3) {
@@ -59,12 +67,14 @@ public class EnveloppeConvexe {
         ArrayList<Point> env1 = new ArrayList<Point>();
         ArrayList<Point> env2 = new ArrayList<Point>();
         partition(e1, env1);
+        System.out.println("sorti partition1");
         partition(e2, env2);
+        System.out.println(("sorti partition2"));
         // et on fusionne !
-        env.addAll( fusion(env1, env2) );
+        env.addAll(fusion(env1, env2) );
     }
 
-    ArrayList<Point> fusion(ArrayList<Point> convLeft, ArrayList<Point> convRight){
+    public ArrayList<Point> fusion(ArrayList<Point> convLeft, ArrayList<Point> convRight){
         // recherche du point d'abcisse le plus grand dans e1;
         int iMax = 0;
         for( int i = 1; i < convLeft.size(); ++i) if(convLeft.get(i).x > convLeft.get(iMax).x) iMax = i;
@@ -77,12 +87,12 @@ public class EnveloppeConvexe {
         while(b){
             b = false;
 
-            if(angle(convLeft.get(si1), convLeft.get((si1-1)%convLeft.size()), convRight.get(sj1)) <= 0){
-                si1 = (si1-1)%convLeft.size();
+            if(surface(convRight.get(sj1), convLeft.get(si1), convLeft.get((si1+1)%convLeft.size())) > 0){
+                si1 = (si1+1)%convLeft.size();
                 b = true;
             }
-            if(angle(convRight.get(sj1), convRight.get((sj1+1)%convRight.size()), convLeft.get(si1)) <= 0){
-                sj1 = (sj1+1+convRight.size())%convRight.size();
+            if(surface(convLeft.get(si1), convRight.get(sj1), convRight.get((sj1-1+convRight.size())%convRight.size())) < 0){
+                sj1 = (sj1-1+convRight.size())%convRight.size();
                 b = true;
             }
         }
@@ -93,11 +103,11 @@ public class EnveloppeConvexe {
         while(b){
             b = false;
 
-            if(angle((convLeft.get(si1), convLeft.get((si1+1)%convLeft.size()), convRight.get(sj1)) >= 0){
+            if(surface((convRight.get(sj2)), convLeft.get(si2), convLeft.get((si1-1+convLeft.size())%convLeft.size())) >= 0){
                 si2 = (si2-1+convLeft.size())%convLeft.size();
                 b = true;
             }
-            if(angle(convRight.get(sj1), convRight.get((sj1-1)%convRight.size()), convLeft.get(si1)) > 0){
+            if(surface(convLeft.get(si2), convRight.get(sj2), convRight.get((sj2+1)%convRight.size())) > 0){
                 sj2 = (sj2+1)%convRight.size();
                 b = true;
             }
