@@ -1,14 +1,18 @@
 package Devoir;
 
+import javafx.scene.canvas.GraphicsContext;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class Point implements Comparable{
     double x, y;
+    boolean libre;
 
     public Point(double x, double y) {
         this.x = x;
         this.y = y;
+        libre = true;
     }
 
     public int compareTo(Object o) {
@@ -22,35 +26,9 @@ public class Point implements Comparable{
             return 0;
     }
 
-    public static List<Point> fusion(List<Point> points1, List<Point> points2) {
-        List<Point> points = new ArrayList<Point>();
-        int index;
-        for(index = 0; index < points1.size(); index++)
-            points.add(points1.get(index));
-
-        for(index = 0; index < points2.size(); index++)
-            points.add(points2.get(index));
-
-        return points;
-    }
-
-    public static double[] transformX(List<Point> points) {
-        double[] x = new double[points.size()];
-        int index = 0;
+    public static void draw(ArrayList<Point> points, GraphicsContext graphicsContext) {
         for(Point point : points) {
-            x[index] = point.x;
-            index++;
+            graphicsContext.fillOval(point.x-2, point.y-2, 2*2, 2*2);
         }
-        return x;
-    }
-
-    public static double[] transformY(List<Point> points) {
-        double[] y = new double[points.size()];
-        int index = 0;
-        for(Point point : points) {
-            y[index] = point.y;
-            index++;
-        }
-        return y;
     }
 }

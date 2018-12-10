@@ -15,23 +15,21 @@ public class Triangle {
         explored = false;
     }
 
-    double area(Point a, Point b, Point c) {
-        return Math.abs((a.x*(b.y-c.y) + b.x*(c.y-a.y) + c.x*(a.y-b.y))/2.0);
+    double sign (Point p1, Point p2, Point p3) {
+        return (p1.x - p3.x) * (p2.y - p3.y) - (p2.x - p3.x) * (p1.y - p3.y);
     }
 
-    public boolean contains(Point x) {
-        double A = area(a, b, c);
-        double A1 = area(x, b, c);
-        double A2 = area(a, x, c);
-        double A3 = area(a, b, x);
+    boolean contains (Point pt) {
+        double d1, d2, d3;
+        boolean has_neg, has_pos;
 
-        return (A==A1+A2+A3);
-    }
+        d1 = sign(pt, a, b);
+        d2 = sign(pt, b, c);
+        d3 = sign(pt, c, a);
 
-    public static boolean allExplored(ArrayList<Triangle> triangles) {
-        for(Triangle triangle : triangles)
-            if(!triangle.explored)
-                return false;
-        return true;
+        has_neg = (d1 < 0) || (d2 < 0) || (d3 < 0);
+        has_pos = (d1 > 0) || (d2 > 0) || (d3 > 0);
+
+        return !(has_neg && has_pos);
     }
 }

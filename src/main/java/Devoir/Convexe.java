@@ -1,91 +1,108 @@
 package Devoir;
 
+import javafx.scene.canvas.GraphicsContext;
+
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 public class Convexe {
 
-    double surface(Point p0, Point p1, Point p2) {
+    double angle(Point p0, Point p1, Point p2) {
         // retourne la surface
         // négatif si on tourne dans le sens contraire des aiguilles d'une montre
         // positif sinon
         return ((p1.x - p0.x) * (p2.y - p0.y) - (p2.x - p0.x) * (p1.y - p0.y)) / 2.;
     }
 
-    void partition(ArrayList<Point> lp, ArrayList<Point> env) {
+    void makeConvex(ArrayList<Point> points, ArrayList<Point> env) {
         env.clear();
-        // ordonner les points par ordre croissant des abcisses
-        Collections.sort(lp);
-        if (lp.size() <= 3) {
-            env.addAll(lp);
-            if (lp.size() == 3 &&
-                    surface(env.get(0), env.get(1), env.get(2)) > 0) {
+
+        /** On ordonne les points par ordre croissant sur l'axe des abscisses */
+        Collections.sort(points);
+        if (points.size() <= 3) {
+            env.addAll(points);
+            if (points.size() == 3 &&
+                    angle(env.get(0), env.get(1), env.get(2)) > 0) {
                 Point p = env.get(1);
                 env.remove(p);
                 env.add(p);
             }
             return;
         }
-        //On divise en deux
-        ArrayList<Point> e1 = new ArrayList<Point>();
-        ArrayList<Point> e2 = new ArrayList<Point>();
-        for (int i = 0; i < lp.size() / 2; ++i) e1.add(lp.get(i));
-        for (int i = lp.size() / 2; i < lp.size(); ++i) e2.add(lp.get(i));
-        // On calcule les enveloppes de chaque morceau
-        ArrayList<Point> env1 = new ArrayList<Point>();
-        ArrayList<Point> env2 = new ArrayList<Point>();
-        partition(e1, env1);
-        partition(e2, env2);
-        // et on fusionne !
-        env.addAll(fusion(env1, env2));
+
+        /** On divise l'ensemble des points en 2 */
+        ArrayList<Point> e1 = new ArrayList<>();
+        ArrayList<Point> e2 = new ArrayList<>();
+        for (int i = 0; i < points.size() / 2; ++i) e1.add(points.get(i));
+        for (int i = points.size() / 2; i < points.size(); ++i) e2.add(points.get(i));
+
+
+        /** On applique l'algo sur chacune des deux sous enveloppe */
+        ArrayList<Point> left = new ArrayList<Point>();
+        ArrayList<Point> right = new ArrayList<Point>();
+        makeConvex(e1, left);
+        makeConvex(e2, right);
+
+        env.addAll(fusion(left, right));
     }
 
-    ArrayList<Point> fusion(ArrayList<Point> e1, ArrayList<Point> e2) {
-        // recherche du point d'abcisse le plus grand dans e1;
+    public ArrayList<Point> fusion(ArrayList<Point> left, ArrayList<Point> right) {
         int iMax = 0;
-        for (int i = 1; i < e1.size(); ++i) if (e1.get(i).x > e1.get(iMax).x) iMax = i;
-        // le point d'abcisse le plus petit dans e2 est en 0
         int iMin = 0;
-        // le segment du haut
-        int ip1 = iMax;
-        int ip2 = iMin;
-        boolean b = true;
-        while (b) {
-            b = false;
-            if (surface(e2.get(ip2), e1.get(ip1), e1.get((ip1 + 1) % e1.size())) > 0) {
-                ip1 = (ip1 + 1) % e1.size();
-                b = true;
+        for (int i = 1; i < left.size(); ++i) if (left.get(i).x > left.get(iMax).x) iMax = i;
+
+
+        /** TOP */
+        int si1 = iMax;
+        int sj1 = iMin;
+        boolean noFail = true;
+        while (noFail) {
+            noFail = false;
+            if (angle(right.get(sj1), left.get(si1), left.get((si1 + 1) % left.size())) > 0) {
+                si1 = (si1 + 1) % left.size();
+                noFail = true;
             }
-            if (surface(e1.get(ip1), e2.get(ip2), e2.get((ip2 - 1 + e2.size()) % e2.size())) < 0) {
-                ip2 = (ip2 - 1 + e2.size()) % e2.size();
-                b = true;
-            }
-        }
-        // le segment du bas
-        int im1 = iMax;
-        int im2 = iMin;
-        b = true;
-        while (b) {
-            b = false;
-            if (surface(e2.get(im2), e1.get(im1), e1.get((im1 - 1 + e1.size()) % e1.size())) < 0) {
-                im1 = (im1 - 1 + e1.size()) % e1.size();
-                b = true;
-            }
-            if (surface(e1.get(im1), e2.get(im2), e2.get((im2 + 1) % e2.size())) > 0) {
-                im2 = (im2 + 1) % e2.size();
-                b = true;
+            if (angle(left.get(si1), right.get(sj1), right.get((sj1 - 1 + right.size()) % right.size())) < 0) {
+                sj1 = (sj1 - 1 + right.size()) % right.size();
+                noFail = true;
             }
         }
-        // fabrication de l'enveloppe
+
+        /** BOTTOM */
+        int si2 = iMax;
+        int sj2 = iMin;
+        noFail = true;
+        while (noFail) {
+            noFail = false;
+            if (angle(right.get(sj2), left.get(si2), left.get((si2 - 1 + left.size()) % left.size())) < 0) {
+                si2 = (si2 - 1 + left.size()) % left.size();
+                noFail = true;
+            }
+            if (angle(left.get(si2), right.get(sj2), right.get((sj2 + 1) % right.size())) > 0) {
+                sj2 = (sj2 + 1) % right.size();
+                noFail = true;
+            }
+        }
+
+
         ArrayList<Point> env = new ArrayList();
-        for (int i = 0; i <= im1; ++i) env.add(e1.get(i));
-        if (ip2 == 0) {
-            for (int i = im2; i < e2.size(); ++i) env.add(e2.get(i));
-            env.add(e2.get(0));
+        for (int i = 0; i <= si2; ++i) env.add(left.get(i));
+        if (sj1 == 0) {
+            for (int i = sj2; i < right.size(); ++i) env.add(right.get(i));
+            env.add(right.get(0));
         } else
-            for (int i = im2; i <= ip2; ++i) env.add(e2.get(i));
-        if (ip1 != 0) for (int i = ip1; i < e1.size(); ++i) env.add(e1.get(i));
+            for (int i = sj2; i <= sj1; ++i) env.add(right.get(i));
+        if (si1 != 0) for (int i = si1; i < left.size(); ++i) env.add(left.get(i));
 
         return env;
+    }
+
+    public void draw(ArrayList<Point> env, GraphicsContext graphicsContext) {
+        int index;
+        for(index = 0; index < env.size()-1; index++) {
+            graphicsContext.strokeLine(env.get(index).x, env.get(index).y, env.get(index+1).x, env.get(index+1).y);
+        }
+        graphicsContext.strokeLine(env.get(index).x, env.get(index).y, env.get(0).x, env.get(0).y);
     }
 }
