@@ -9,7 +9,7 @@ public class Convexe {
 
     /** Signe de l'angle formé par p0p1 et p0p2
      *
-     * @return positif si on est dans le sens trigo
+     * @return positif si sens inverse trigo
      *         negatif sinon
      */
     double angle(Point p0, Point p1, Point p2) {
@@ -40,8 +40,10 @@ public class Convexe {
         /** On divise l'ensemble des points en 2 */
         ArrayList<Point> e1 = new ArrayList<>();
         ArrayList<Point> e2 = new ArrayList<>();
-        for (int i = 0; i < points.size() / 2; ++i) e1.add(points.get(i));
-        for (int i = points.size() / 2; i < points.size(); ++i) e2.add(points.get(i));
+        for (int i = 0; i < points.size() / 2; ++i)
+            e1.add(points.get(i));
+        for (int i = points.size() / 2; i < points.size(); ++i)
+            e2.add(points.get(i));
 
 
         /** On applique l'algo sur chacune des deux sous enveloppe */

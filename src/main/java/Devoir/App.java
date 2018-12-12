@@ -16,7 +16,7 @@ public class App extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        Generator generator = new Generator(30);
+        Generator generator = new Generator(1000);
         generator.generate();
 
         ArrayList<Point> env = new ArrayList<>();
@@ -30,7 +30,7 @@ public class App extends Application {
         Point.draw(generator.points, graphicsContext);
         convexe.draw(env, graphicsContext);
 
-        Triangulation.draw(generator.points, env, graphicsContext);
+        //Triangulation.draw(generator.points, env, graphicsContext);
 
         root.getChildren().add(canvas);
         primaryStage.setScene(new Scene(root));

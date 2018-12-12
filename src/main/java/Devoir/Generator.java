@@ -8,7 +8,7 @@ public class Generator {
 
     ArrayList<Point> points ;
     int numberOfPoints;
-    double minBound=0, maxBound=700;
+    double minBound=5, maxBound=700;
 
     public Generator(int numberOfPoints){
 
